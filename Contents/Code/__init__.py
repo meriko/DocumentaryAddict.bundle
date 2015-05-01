@@ -103,7 +103,7 @@ def CategoryChoice(title, url):
         if 'index.php?page=movie&do=category' in action:
             break
     
-    if True:#action.startswith("#"):
+    if action.startswith("#"):
         link = '/' + action
     else:
         link = '/' + action[1:]
