@@ -1,0 +1,39 @@
+ICON = 'https://pbs.twimg.com/profile_images/2342248169/iq0isyujgjtqczpyxjke_400x400.gif'
+
+####################################################################################################
+def MetadataObjectForURL(url):
+
+    pageElement = HTML.ElementFromURL(url)
+
+    title = pageElement.xpath("//meta[@property='og:title']/@content")[0].strip()
+    thumb = pageElement.xpath("//meta[@property='og:image']/@content")[0].strip()
+    summary = String.StripTags(''.join(pageElement.xpath("//*[@role='main']//p/text()")))
+    
+    keywords = []
+    for item in pageElement.xpath("//*[@itemprop='keywords']"):
+        keyword = item.xpath(".//a/text()")[0].strip()
+        keywords.append(keyword)
+    
+    youtube_url = pageElement.xpath("//embed/@src")[0]
+    metadata = URLService.MetadataObjectForURL(youtube_url)
+    
+    return VideoClipObject(
+        title = title,
+        summary = summary,
+        originally_available_at = metadata.originally_available_at,
+        rating = metadata.rating,
+        thumb = thumb,
+        art = metadata.thumb,
+        duration = metadata.duration,
+        source_icon = ICON
+    )
+
+####################################################################################################
+@deferred
+def MediaObjectsForURL(url):
+
+    pageElement = HTML.ElementFromURL(url)
+    youtube_url = pageElement.xpath("//embed/@src")[0]
+    media_objects = URLService.MediaObjectsForURL(youtube_url)
+    
+    return media_objects
