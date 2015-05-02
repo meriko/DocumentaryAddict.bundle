@@ -56,7 +56,7 @@ def MainMenu():
         )
     )
     
-    title = unicode("Search...")
+    title = "Search..."
     oc.add(
         InputDirectoryObject(
             key = Callback(Search),
@@ -144,7 +144,6 @@ def Items(title2, order = None, key = None, link = '/index.php?page=movie&do=typ
         
         try:
             summary = String.StripTags(item.xpath(".//*[@class='infosml']/text()")[0].strip())
-
 
         except:
             try:
