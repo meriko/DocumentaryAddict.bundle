@@ -9,11 +9,6 @@ def MetadataObjectForURL(url):
     thumb = pageElement.xpath("//meta[@property='og:image']/@content")[0].strip()
     summary = String.StripTags(''.join(pageElement.xpath("//*[@role='main']//p/text()")))
     
-    keywords = []
-    for item in pageElement.xpath("//*[@itemprop='keywords']"):
-        keyword = item.xpath(".//a/text()")[0].strip()
-        keywords.append(keyword)
-    
     embed_url = pageElement.xpath("//embed/@src")[0]
     metadata = URLService.MetadataObjectForURL(embed_url)
     
