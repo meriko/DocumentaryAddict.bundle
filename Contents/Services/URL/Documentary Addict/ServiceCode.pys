@@ -14,8 +14,8 @@ def MetadataObjectForURL(url):
         keyword = item.xpath(".//a/text()")[0].strip()
         keywords.append(keyword)
     
-    youtube_url = pageElement.xpath("//embed/@src")[0]
-    metadata = URLService.MetadataObjectForURL(youtube_url)
+    embed_url = pageElement.xpath("//embed/@src")[0]
+    metadata = URLService.MetadataObjectForURL(embed_url)
     
     return VideoClipObject(
         title = title,
@@ -33,7 +33,7 @@ def MetadataObjectForURL(url):
 def MediaObjectsForURL(url):
 
     pageElement = HTML.ElementFromURL(url)
-    youtube_url = pageElement.xpath("//embed/@src")[0]
-    media_objects = URLService.MediaObjectsForURL(youtube_url)
+    embed_url = pageElement.xpath("//embed/@src")[0]
+    media_objects = URLService.MediaObjectsForURL(embed_url)
     
     return media_objects
