@@ -8,7 +8,5 @@
 	<string>2</string>
 	<key>PlexClientPlatforms</key>
 	<string>*</string>
-	<key>PlexPluginDevMode</key>
-	<string>1</string>
 </dict>
 </plist>
