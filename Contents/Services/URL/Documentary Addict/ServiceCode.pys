@@ -3,13 +3,17 @@ ICON = 'https://pbs.twimg.com/profile_images/2342248169/iq0isyujgjtqczpyxjke_400
 ####################################################################################################
 def MetadataObjectForURL(url):
 
-    pageElement = HTML.ElementFromURL(url)
+    pageElement = HTML.ElementFromURL(url, cacheTime = CACHE_1HOUR)
 
     title = pageElement.xpath("//meta[@property='og:title']/@content")[0].strip()
     thumb = pageElement.xpath("//meta[@property='og:image']/@content")[0].strip()
     summary = String.StripTags(''.join(pageElement.xpath("//*[@role='main']//p/text()")))
-    
-    embed_url = pageElement.xpath("//embed/@src")[0]
+
+    try:    
+        embed_url = pageElement.xpath("//embed/@src")[0]
+    except:
+        raise Ex.MediaNotAvailable
+
     metadata = URLService.MetadataObjectForURL(embed_url)
     
     return VideoClipObject(
@@ -27,8 +31,13 @@ def MetadataObjectForURL(url):
 @deferred
 def MediaObjectsForURL(url):
 
-    pageElement = HTML.ElementFromURL(url)
-    embed_url = pageElement.xpath("//embed/@src")[0]
+    pageElement = HTML.ElementFromURL(url, cacheTime = CACHE_1HOUR)
+    
+    try:    
+        embed_url = pageElement.xpath("//embed/@src")[0]
+    except:
+        raise Ex.MediaNotAvailable
+        
     media_objects = URLService.MediaObjectsForURL(embed_url)
     
     return media_objects
