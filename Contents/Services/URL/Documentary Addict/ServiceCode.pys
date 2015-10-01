@@ -12,7 +12,10 @@ def MetadataObjectForURL(url):
     try:    
         embed_url = pageElement.xpath("//embed/@src")[0]
     except:
-        raise Ex.MediaNotAvailable
+        try:
+            embed_url = pageElement.xpath("//meta[@itemprop='embedUrl']/@content")[0]
+        except:
+            raise Ex.MediaNotAvailable
 
     metadata = URLService.MetadataObjectForURL(embed_url)
     
@@ -36,7 +39,10 @@ def MediaObjectsForURL(url):
     try:    
         embed_url = pageElement.xpath("//embed/@src")[0]
     except:
-        raise Ex.MediaNotAvailable
+        try:
+            embed_url = pageElement.xpath("//meta[@itemprop='embedUrl']/@content")[0]
+        except:
+            raise Ex.MediaNotAvailable
         
     media_objects = URLService.MediaObjectsForURL(embed_url)
     
