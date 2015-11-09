@@ -5,8 +5,8 @@ def MetadataObjectForURL(url):
 
     pageElement = HTML.ElementFromURL(url, cacheTime = CACHE_1HOUR)
 
-    title = pageElement.xpath("//meta[@property='og:title']/@content")[0].strip()
-    thumb = pageElement.xpath("//meta[@property='og:image']/@content")[0].strip()
+    title = pageElement.xpath("//head/title/text()")[0].strip()
+    thumb = pageElement.xpath("//meta[@itemprop='thumbnailUrl']/@content")[0].strip()
     summary = String.StripTags(''.join(pageElement.xpath("//*[@role='main']//p/text()")))
 
     try:    

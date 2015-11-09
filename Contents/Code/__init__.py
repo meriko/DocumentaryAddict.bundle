@@ -11,15 +11,11 @@ ITEMS_PER_PAGE = 16
 CHOICES = [
     {
         'title':    'Most Viewed',
-        'order':    'c_view'
+        'order':    'C_View'
     },
     {
         'title':    'Most Recent',
-        'order':    'c_create'
-    },
-    {
-        'title':    'All (A - Z)',
-        'order':    'c_name'
+        'order':    'created_at'
     }
 ]
 
@@ -73,19 +69,21 @@ def MainMenu():
 def Categories(title):
     oc = ObjectContainer(title2 = title)
     
-    pageElement = HTML.ElementFromURL(BASE_URL)
-    for item in pageElement.xpath("//*[@itemprop='genre']"):
-        title = item.xpath("./text()")[0]
-        link = item.xpath("./ancestor::a/@href")[0]
-        url = BASE_URL + '/' + link[1:]
-    
+    pageElement = HTML.ElementFromURL(BASE_URL + '/films')
+    for item in pageElement.xpath("//*[@id='q_FK_CategoryID_eq']//option"):
+        try:
+            category_id = item.xpath("./@value")[0]
+            title = item.xpath("./text()")[0]
+        except:
+            continue
+        
         oc.add(
             DirectoryObject(
                 key =
                     Callback(
                         CategoryChoice,
                         title = title,
-                        url = url
+                        category_id = category_id
                     ),
                 title = title
             )
@@ -95,18 +93,8 @@ def Categories(title):
    
 ##########################################################################################
 @route(PREFIX + '/CategoryChoice')
-def CategoryChoice(title, url):
+def CategoryChoice(title, category_id):
     oc = ObjectContainer(title2 = title)
-    pageElement = HTML.ElementFromURL(url)
-    
-    for action in pageElement.xpath("//form/@action"):
-        if 'index.php?page=movie&do=category' in action:
-            break
-    
-    if action.startswith("#"):
-        link = '/' + action
-    else:
-        link = '/' + action[1:]
     
     for choice in CHOICES:        
         oc.add(
@@ -116,7 +104,7 @@ def CategoryChoice(title, url):
                         Items,
                         title2 = title,
                         order = choice['order'],
-                        link = link
+                        category_id = category_id
                     ),
                 title = choice['title']
             )
@@ -126,20 +114,18 @@ def CategoryChoice(title, url):
 
 ##########################################################################################
 @route(PREFIX + '/Items', page = int)
-def Items(title2, order = None, key = None, link = '/index.php?page=movie&do=type&type_id=2&view=thumb', page = 1):
+def Items(title2, order = '', key = '', category_id = '', page = 1):
     oc = ObjectContainer(title2 = title2)
-    url = BASE_URL + link + '&p=%s' % (page)
     
-    if order:
-        values = {'order': order}
+    if order and not category_id:
+        url = BASE_URL + '/films?page=%s&%s=%s+desc' % (page, String.Quote('q[s]'), order)
     else:
-        values = {'key': key}
+        url = BASE_URL + '/films?commit=Search&page=%s&%s=%s&%s=%s&%s=%s+desc&utf8=✓' % (page, String.Quote('q[C_Name_cont]'), String.Quote(key), String.Quote('q[FK_CategoryID_eq]'), category_id, String.Quote('q[s]'), order)
         
-    pageElement = HTML.ElementFromURL(url=url, values=values)
+    pageElement = HTML.ElementFromURL(url)
 
-    for item in pageElement.xpath("//*[@class='innerLR']//*[@class='col-md-3']"):
-        link = item.xpath(".//a/@href")[0].replace("..", "")
-        
+    for item in pageElement.xpath("//*[contains(@class, 'widget-film')]"):
+        url = item.xpath(".//a/@href")[0]
         title = item.xpath(".//a/@title")[0].strip()
         
         try:
@@ -156,13 +142,13 @@ def Items(title2, order = None, key = None, link = '/index.php?page=movie&do=typ
                 continue
 
         try:
-            thumb = item.xpath(".//img/@data-src")[0]
+            thumb = item.xpath(".//img/@src")[0]
         except:
             thumb = None
 
         oc.add(
             VideoClipObject(
-                url = BASE_URL + '/' + link,
+                url = url,
                 title = title,
                 summary = summary,
                 thumb = thumb
@@ -184,6 +170,7 @@ def Items(title2, order = None, key = None, link = '/index.php?page=movie&do=typ
                         title2 = title2,
                         order = order,
                         key = key,
+                        category_id = category_id,
                         page = page + 1
                     ),
                 title = unicode("More...")
@@ -197,6 +184,5 @@ def Items(title2, order = None, key = None, link = '/index.php?page=movie&do=typ
 def Search(query):
     return Items(
         title2 = 'Results for "%s"' % query,
-        link = '/index.php?page=movie&do=search&method=post',
         key = String.Quote(query)
     )
