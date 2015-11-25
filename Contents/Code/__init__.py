@@ -70,7 +70,7 @@ def Categories(title):
     oc = ObjectContainer(title2 = title)
     
     pageElement = HTML.ElementFromURL(BASE_URL + '/films')
-    for item in pageElement.xpath("//*[@id='q_FK_CategoryID_eq']//option"):
+    for item in pageElement.xpath("//*[contains(@id,'category_id')]//option"):
         try:
             category_id = item.xpath("./@value")[0]
             title = item.xpath("./text()")[0]
@@ -117,11 +117,11 @@ def CategoryChoice(title, category_id):
 def Items(title2, order = '', key = '', category_id = '', page = 1):
     oc = ObjectContainer(title2 = title2)
     
-    if order and not category_id:
+    if order and not category_id:        
         url = BASE_URL + '/films?page=%s&%s=%s+desc' % (page, String.Quote('q[s]'), order)
     else:
-        url = BASE_URL + '/films?commit=Search&page=%s&%s=%s&%s=%s&%s=%s+desc&utf8=✓' % (page, String.Quote('q[C_Name_cont]'), String.Quote(key), String.Quote('q[FK_CategoryID_eq]'), category_id, String.Quote('q[s]'), order)
-        
+        url = BASE_URL + '/films?commit=Search&page=%s&%s=%s&%s=%s&%s=%s+desc&utf8=✓' % (page, String.Quote('q[C_Name_cont]'), String.Quote(key), String.Quote('q[category_id_eq]'), category_id, String.Quote('q[s]'), order)
+ 
     pageElement = HTML.ElementFromURL(url)
 
     for item in pageElement.xpath("//*[contains(@class, 'widget-film')]"):
