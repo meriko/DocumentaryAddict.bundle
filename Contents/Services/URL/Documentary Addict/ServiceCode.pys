@@ -17,16 +17,39 @@ def MetadataObjectForURL(url):
         except:
             raise Ex.MediaNotAvailable
 
+    if embed_url.startswith('//'):
+        embed_url = 'http:' + embed_url
+    
     metadata = URLService.MetadataObjectForURL(embed_url)
+    
+    if not metadata:
+        raise Ex.MediaNotAvailable
+        
+    originally_available_at = None
+    if metadata.originally_available_at:
+        originally_available_at = metadata.originally_available_at
+    
+    duration = None
+    if metadata.duration:
+        duration = metadata.duration
+        
+    art = None
+    if metadata.thumb:
+        art = metadata.thumb
+    
+    rating = None
+    if metadata.rating:
+        rating = metadata.rating
+    
     
     return VideoClipObject(
         title = title,
         summary = summary,
-        originally_available_at = metadata.originally_available_at,
-        rating = metadata.rating,
+        originally_available_at = originally_available_at,
+        rating = rating,
         thumb = thumb,
-        art = metadata.thumb,
-        duration = metadata.duration,
+        art = art,
+        duration = duration,
         source_icon = ICON
     )
 
@@ -43,6 +66,9 @@ def MediaObjectsForURL(url):
             embed_url = pageElement.xpath("//meta[@itemprop='embedUrl']/@content")[0]
         except:
             raise Ex.MediaNotAvailable
+
+    if embed_url.startswith('//'):
+        embed_url = 'http:' + embed_url
         
     media_objects = URLService.MediaObjectsForURL(embed_url)
     
