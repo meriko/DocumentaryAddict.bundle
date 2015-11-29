@@ -114,15 +114,34 @@ def CategoryChoice(title, category_id):
 
 ##########################################################################################
 @route(PREFIX + '/Items', page = int)
-def Items(title2, order = '', key = '', category_id = '', page = 1):
+def Items(title2, order = None, key = None, category_id = None, page = 1):
     oc = ObjectContainer(title2 = title2)
     
     if order and not category_id:        
         url = BASE_URL + '/films?page=%s&%s=%s+desc' % (page, String.Quote('q[s]'), order)
     else:
-        url = BASE_URL + '/films?commit=Search&page=%s&%s=%s&%s=%s&%s=%s+desc&utf8=✓' % (page, String.Quote('q[C_Name_cont]'), String.Quote(key), String.Quote('q[category_id_eq]'), category_id, String.Quote('q[s]'), order)
- 
-    pageElement = HTML.ElementFromURL(url)
+        # Since PHT can't handle '' as parameter we must do a little bit extra stuff here
+        order_to_quote = ''
+        sort = ''
+        if order:
+            order_to_quote = order
+            
+            if order == 'created_at':
+                sort = '+asc'
+            else:
+                sort = '+desc'
+        
+        key_to_quote = ''
+        if key:
+            key_to_quote = key
+            
+        category_id_to_quote = ''
+        if category_id:
+            category_id_to_quote = category_id
+            
+        url = BASE_URL + '/films?commit=Search&page=%s&%s=%s&%s=%s&%s=%s%s' % (page, String.Quote('q[C_Name_cont]'), String.Quote(key_to_quote), String.Quote('q[category_id_eq]'), category_id_to_quote, String.Quote('q[s]'), order_to_quote, sort)
+    
+    pageElement = HTML.ElementFromURL(url) 
 
     for item in pageElement.xpath("//*[contains(@class, 'widget-film')]"):
         url = item.xpath(".//a/@href")[0]
@@ -157,7 +176,7 @@ def Items(title2, order = '', key = '', category_id = '', page = 1):
 
     if len(oc) < 1:
         oc.header  = "Sorry"
-        oc.message = unicode("Couldn't find any content")
+        oc.message = "Couldn't find any content"
         
         return oc
     
@@ -172,8 +191,7 @@ def Items(title2, order = '', key = '', category_id = '', page = 1):
                         key = key,
                         category_id = category_id,
                         page = page + 1
-                    ),
-                title = unicode("More...")
+                    )
             )
         )
     
